@@ -7,6 +7,7 @@ import os
 import json
 import subprocess
 import datetime
+import random
 
 STATUS_CODE_200 = 200
 bing = 'http://cn.bing.com'
@@ -69,6 +70,8 @@ def getImages(uriList):
     # check whether image already exist
     #
     imageNames = []
+    imageExistNames = []
+
     for imgUri in uriList:
         # remove args
         if '?' in imgUri:
@@ -78,7 +81,8 @@ def getImages(uriList):
 
         imgList = os.listdir(IMAGE_OUT_FOLDER)
         if filename in imgList:
-            print "[Already exsit]", filename, imgUri
+            print "[Already exist]", filename, imgUri
+            imageExistNames.append(filename)
             continue
 
         # Download
@@ -92,7 +96,7 @@ def getImages(uriList):
                 imgf.close()
                 print '[Writed]', filename, ''
                 imageNames.append(filename)
-    return imageNames
+    return imageNames,imageExistNames
 
 
 def downloadPage(uri):
@@ -123,9 +127,14 @@ def main():
     uriList = parseMainPage(html)
     uriList = imageResolution(uriList)
     # print uriList
-    imageNames = getImages(uriList)
+    imageNames,imageExistNames = getImages(uriList)
     if len(imageNames) > 0:
         changeBackground(IMAGE_OUT_FOLDER + "/" + imageNames[0])
+    else:
+        index = random.randint(0, len(imageExistNames)-1)
+        filename = imageExistNames[index]
+        changeBackground(IMAGE_OUT_FOLDER + "/" + filename)
+
 
 
 
